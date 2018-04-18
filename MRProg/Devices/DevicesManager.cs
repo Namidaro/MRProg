@@ -11,15 +11,15 @@ namespace MRProg.Devices
     public class DevicesManager
     {
         private bool IsDeviceIdentify = false;
-        private string _deviceName=String.Empty;
-        private string _fullVersion=String.Empty;
-        private string _versionNumber=String.Empty;
+        private string _deviceName = String.Empty;
+        private string _fullVersion = String.Empty;
+        private string _versionNumber = String.Empty;
         private IDeviceSpecification _currentDeviceSpecification;
         public static byte _deviceNumber;
 
         public DevicesManager()
         {
-            
+
             AvailableDeviceSpecifications = new List<IDeviceSpecification>()
             {
                 new KL4_3IDeviceSpecification(),
@@ -36,14 +36,10 @@ namespace MRProg.Devices
                 new MR902DeviceSpecification(),
                 new PT303DeviceSpecification(),
                 new ClearDeviceSpecification()
-
             };
         }
 
-
         public List<IDeviceSpecification> AvailableDeviceSpecifications { get; }
-
-
 
         public async Task<IDeviceSpecification> IdentifyDevice(byte devicenumber)
         {
@@ -51,7 +47,7 @@ namespace MRProg.Devices
             ushort[] answerforMr;
             ushort[] answerforOther;
 
-            _currentDeviceSpecification = new UnknownDeviceSpecification();
+            _currentDeviceSpecification = new UnsupportedDeviceSpecification();
             try
             {
                 answerforMr = await ConnectionManager.Connection.ModbusMasterController.ReadHoldingRegistersAsync(devicenumber, 0x500,
@@ -60,14 +56,11 @@ namespace MRProg.Devices
                 {
                     return _currentDeviceSpecification;
                 }
-
-
             }
             catch (Exception e)
             {
-                
-            }
 
+            }
             try
             {
                 answerforOther = await ConnectionManager.Connection.ModbusMasterController.ReadHoldingRegistersAsync(devicenumber, 0x1f00,
@@ -76,17 +69,13 @@ namespace MRProg.Devices
                 {
                     return _currentDeviceSpecification;
                 }
-
             }
             catch (Exception e)
             {
                 throw;
-
             }
-
             return _currentDeviceSpecification;
         }
-
 
         private bool VersionForMR(ushort[] massUshorts)
         {
@@ -110,12 +99,10 @@ namespace MRProg.Devices
             string[] param = this._fullVersion.Split(new[] { ' ', '\0' }, StringSplitOptions.RemoveEmptyEntries);
             if (param.Length == 5)
             {
-
                 this._versionNumber = param[4];
             }
             else if (param.Length > 5)
             {
-
                 this._versionNumber = param[5];
             }
             else
@@ -185,8 +172,6 @@ namespace MRProg.Devices
         /// <returns></returns>
         private bool IsDeviceConteins(string device)
         {
-
-
             foreach (var type in AvailableDeviceSpecifications)
             {
                 if (type.DeviceName == device)
@@ -198,12 +183,12 @@ namespace MRProg.Devices
             return false;
         }
 
-        public string GetdeviceName
+        public string GetDeviceName
         {
             get { return _deviceName; }
         }
 
-        public string GetdeviceVersion
+        public string GetDeviceVersion
         {
             get { return _versionNumber; }
         }
@@ -214,6 +199,6 @@ namespace MRProg.Devices
             set { _deviceNumber = value; }
         }
 
-       
+
     }
 }

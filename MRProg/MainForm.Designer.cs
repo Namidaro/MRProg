@@ -127,7 +127,7 @@
             this._openFolderButton.TabIndex = 5;
             this._openFolderButton.Text = "Выбрать каталог с рабочими программами";
             this._openFolderButton.UseSelectable = true;
-            this._openFolderButton.Click += new System.EventHandler(this.metroButton2_Click);
+            this._openFolderButton.Click += new System.EventHandler(this._openFolderButton_Click);
             // 
             // groupBox6
             // 
@@ -515,6 +515,7 @@
             this.Name = "MainForm";
             this.Text = "MRProg";
             this.TextAlign = MetroFramework.Forms.MetroFormTextAlign.Right;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();

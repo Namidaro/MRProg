@@ -16,7 +16,7 @@ namespace MRProg.Connection
 {
     public partial class comPortConfiguration : MetroForm
     {
-        static comPortConfiguration Instance= new comPortConfiguration();
+        static comPortConfiguration Instance = new comPortConfiguration();
         public static void ShowConfiguration()
         {
 
@@ -97,7 +97,7 @@ namespace MRProg.Connection
             if (flag)
             {
                 _portCb.SelectedIndex = index;
-               
+
             }
             SetPortConfigurationFromSettings();
         }
@@ -128,12 +128,12 @@ namespace MRProg.Connection
 
         private void SetPortConfigurationFromSettings()
         {
-            _speedCb.SelectedIndex =Settings.Default.BaundRates;
-           _parityCb.SelectedIndex = Settings.Default.ParityProperty;
-          _dataBitsCb.SelectedIndex = Settings.Default.DataBitsProperty;
-            _stopBitsCb.SelectedIndex =Settings.Default.StopBitsProperty;
+            _speedCb.SelectedIndex = Settings.Default.BaundRates;
+            _parityCb.SelectedIndex = Settings.Default.ParityProperty;
+            _dataBitsCb.SelectedIndex = Settings.Default.DataBitsProperty;
+            _stopBitsCb.SelectedIndex = Settings.Default.StopBitsProperty;
             _readTimeOut.Text = Settings.Default.ReadTimeOut;
-            _writeTimeOut.Text= Settings.Default.ReadTimeOut;
+            _writeTimeOut.Text = Settings.Default.WriteTimeOut;
             Settings.Default.Save();
         }
 
@@ -153,23 +153,27 @@ namespace MRProg.Connection
         {
             var portNum = byte.Parse(_portCb.SelectedItem.ToString());
 
-            ComPortConfiguration config= ConnectionManager.GetComConfig(portNum);
+            ComPortConfiguration config = ConnectionManager.GetComConfig(portNum);
 
             if (config == null)
             {
                 config = GetPortConfiguration();
-               ConnectionManager.AddComConfiguration(Convert.ToByte(_portCb.Text),config ); 
+                ConnectionManager.AddComConfiguration(Convert.ToByte(_portCb.Text), config);
             }
             SetPortConfiguration(config);
         }
-        private async  void _applyButton_Click(object sender, EventArgs e)
+        private void _applyButton_Click(object sender, EventArgs e)
+        {
+            ApplySettings();
+        }
+        private void ApplySettings()
         {
             ConnectionManager.SelectedPort = _portCb.Text;
-            ConnectionManager.AddComConfiguration(Convert.ToByte(_portCb.Text),GetPortConfiguration());
+            ConnectionManager.BaudRate = _speedCb.SelectedIndex;
+            ConnectionManager.AddComConfiguration(Convert.ToByte(_portCb.Text), GetPortConfiguration());
             ConnectionManager.Connection?.UpdateConfiguration();
             SetSettings();
             this.Hide();
-
         }
 
         private void comPortConfiguration_FormClosing(object sender, FormClosingEventArgs e)

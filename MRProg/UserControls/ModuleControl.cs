@@ -357,7 +357,7 @@ namespace MRProg.UserControls
                     }
                 case ModuleStates.WITHOUTTYPE:
                     {
-                       
+
                         return;
                     }
                 default:
@@ -372,7 +372,7 @@ namespace MRProg.UserControls
         {
             _data = File.ReadAllBytes(this._filePath);
             _workProgramCheckBox.Enabled = true;
-            string versionString=String.Empty;
+            string versionString = String.Empty;
 
             if (this.VerefyFile())
             {
@@ -383,17 +383,17 @@ namespace MRProg.UserControls
             }
             try
             {
-                Regex reg=new Regex(FileRegexString);
+                Regex reg = new Regex(FileRegexString);
 
-                    foreach (var match in reg.Matches(_filePath))
-                    {
-                        match.ToString();
-                        versionString = match.ToString().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[4];
-                    }
+                foreach (var match in reg.Matches(_filePath))
+                {
+                    match.ToString();
+                    versionString = match.ToString().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[4];
+                }
 
 
-               versionString = versionString.Replace(".",
-                    Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencyDecimalSeparator);
+                versionString = versionString.Replace(".",
+                     Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencyDecimalSeparator);
 
                 Logger.AddToFile(String.Format("Выбран файл - {0}, Размер - {1} Байт", this._filePath,
                     File.ReadAllBytes(this._filePath).Length));
@@ -555,16 +555,16 @@ namespace MRProg.UserControls
                         this.groupBox5.BackColor = Color.Green;
                         this.groupBox6.BackColor = Color.Green;
 
-                        _writeEepromButton.Enabled = true;
-                        _writeRelayDiscretButton.Enabled = true;
-                        _writeFlashButton.Enabled = true;
-                        _readEepromButton.Enabled = true;
-                        _readDiscretRelayButton1.Enabled = true;
-                        metroButton16.Enabled = true;
-                        readFlashButton.Enabled = true;
-                        _chooseFileEepromButton.Enabled = true;
-                        _chooseFileRelayButton.Enabled = true;
-                        _chooseFlashFileButton.Enabled = true;
+                        _writeEepromButton.Enabled = false;
+                        _writeRelayDiscretButton.Enabled = false;
+                        _writeFlashButton.Enabled = false;
+                        _readEepromButton.Enabled = false;
+                        _readDiscretRelayButton1.Enabled = false;
+                        metroButton16.Enabled = false;
+                        readFlashButton.Enabled = false;
+                        _chooseFileEepromButton.Enabled = false;
+                        _chooseFileRelayButton.Enabled = false;
+                        _chooseFlashFileButton.Enabled = false;
 
 
                         this.BackColor = Color.Green;
@@ -642,7 +642,7 @@ namespace MRProg.UserControls
 
                 case ModuleStates.ERROR_READ_MODULE:
                     {
-                        
+
                         this.groupBox1.BackColor = Color.Red;
                         this.groupBox2.BackColor = Color.Red;
                         this.groupBox3.BackColor = Color.Red;
@@ -703,7 +703,7 @@ namespace MRProg.UserControls
                         this.groupBox4.BackColor = Color.FromArgb(66, 165, 245);
                         this.groupBox5.BackColor = Color.FromArgb(66, 165, 245);
                         this.groupBox6.BackColor = Color.FromArgb(66, 165, 245);
-                        this.BackColor= Color.FromArgb(66, 165, 245);
+                        this.BackColor = Color.FromArgb(66, 165, 245);
 
                         break;
 
@@ -721,7 +721,7 @@ namespace MRProg.UserControls
                         this.Enabled = false;
                         break;
                     }
-                
+
                 case ModuleStates.WITHOUTTYPE:
                     {
                         this.Enabled = true;
@@ -956,7 +956,7 @@ namespace MRProg.UserControls
             }
             try
             {
-                ModuleWritterController.ModuleMLKToloader(_moduleInformation);
+                ModuleWritterController.DeviceToloader(_moduleInformation);
                 Thread.Sleep(500);
                 ConnectionManager.Connection.Serialport.BaudRate = 230400;
                 MessageBox.Show("Запрос на перевод в режим загрузчика отправлен");
@@ -1094,11 +1094,16 @@ namespace MRProg.UserControls
             }
         }
 
-        private async void _toWorkState_Click(object sender, EventArgs e)
+        private void _toWorkState_Click(object sender, EventArgs e)
+        {
+            TryDeviceToWork();
+        }
+
+        private async void TryDeviceToWork()
         {
             try
             {
-                await ModuleWritterController.ModuleMLKToWork(_moduleInformation);
+                await ModuleWritterController.DeviceToWork(_moduleInformation);
                 await Task.Delay(1500);
                 ConnectionManager.Connection.Serialport.BaudRate = 115200;
                 MessageBox.Show("Запрос на перевод модуля в рабочий режим отправлен");
@@ -1112,6 +1117,10 @@ namespace MRProg.UserControls
         }
 
         private async void metroButton16_Click(object sender, EventArgs e)
+        {
+            await TryManualRelayConfig();
+        }
+        private async Task TryManualRelayConfig()
         {
             ManualRelayConfigForm f1 = new ManualRelayConfigForm(progressRelay);
             try

@@ -20,21 +20,39 @@ namespace MRProg.Connection
             set { _serialport = value; }
         }
 
+        public int BaudRate
+        {
+            get { return _baudRate; }
+            set { _baudRate = value; }
+        }
+
         private ComPortConfiguration _comPortConfiguration;
         private SerialPort _serialport;
+        private int _baudRate;
         private byte _portNumber;
 
-        internal ComConnection(byte portnumber)
+        //internal ComConnection(byte portnumber)
+        //{
+        //    _portNumber = portnumber;
+        //    if (ConnectionManager.Connection != null)
+        //    {
+        //        ConnectionManager.Connection.Serialport.Close();
+        //    }
+        //    Serialport = new SerialPort(string.Format("COM{0}", _portNumber));
+        //    UpdateConfiguration();
+        //}
+
+        internal ComConnection(byte portnumber, int baudRate)
         {
             _portNumber = portnumber;
             if (ConnectionManager.Connection != null)
             {
                 ConnectionManager.Connection.Serialport.Close();
             }
-            Serialport = new SerialPort(string.Format("COM{0}", _portNumber));
+            Serialport = new SerialPort(string.Format("COM{0}", _portNumber), baudRate);
             UpdateConfiguration();
         }
-        
+
         public void UpdateConfiguration()
         {
             _comPortConfiguration = ConnectionManager.GetComConfig(_portNumber);
@@ -67,16 +85,16 @@ namespace MRProg.Connection
                     };
                     ModbusMasterController.Progress = ConnectionManager.Progress; ;
                 };
-                
-               return true;
 
-        }
+                return true;
+
+            }
             catch (Exception e)
             {
                 MessageErrorBox me = new MessageErrorBox(e.Message, "Ошибка при открытии порта");
-        me.ShowErrorMessageForm();
+                me.ShowErrorMessageForm();
                 return false;
             }
-}
+        }
     }
 }

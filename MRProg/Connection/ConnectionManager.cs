@@ -11,6 +11,7 @@ namespace MRProg.Connection
     {
         private static Dictionary<byte, ComPortConfiguration> _comPortConfigurations = new Dictionary<byte, ComPortConfiguration>();
         public static string SelectedPort { get; set; }
+        public static int BaudRate { get; set; }
         public static IProgress<QueryReport> Progress{ get; set; }
 
         public static ComConnection Connection { get; set; }

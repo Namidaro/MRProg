@@ -474,7 +474,7 @@
             // 
             // _toWorkState
             // 
-            this._toWorkState.Location = new System.Drawing.Point(3, 93);
+            this._toWorkState.Location = new System.Drawing.Point(3, 116);
             this._toWorkState.Name = "_toWorkState";
             this._toWorkState.Size = new System.Drawing.Size(194, 23);
             this._toWorkState.TabIndex = 14;
@@ -484,7 +484,7 @@
             // 
             // _toLoaderState
             // 
-            this._toLoaderState.Location = new System.Drawing.Point(3, 122);
+            this._toLoaderState.Location = new System.Drawing.Point(3, 87);
             this._toLoaderState.Name = "_toLoaderState";
             this._toLoaderState.Size = new System.Drawing.Size(194, 23);
             this._toLoaderState.TabIndex = 15;

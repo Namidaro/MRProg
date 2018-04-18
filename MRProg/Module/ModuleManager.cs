@@ -19,7 +19,6 @@ namespace MRProg.Module
             ModuleInformation moduleInformation=new ModuleInformation();
             try
             {
-
                      ushort[] answer = await ConnectionManager.Connection.ModbusMasterController.ReadHoldingRegistersAsync(devicenumber, (ushort)(deviceSpecification.StartAddInfo + MODULE_INFO_SIZE * i),
                          MODULE_INFO_SIZE, "Чтение информации о модуле");
                     byte[] answerBytes = Common.TOBYTES(answer, false);
@@ -31,7 +30,6 @@ namespace MRProg.Module
                      moduleInformation=new ModuleInformation(str1,addingInfo,str3,(byte)i);
                     moduleInformation.ModulePositionOnSpecification = deviceSpecification.ModuleTypes[i];
                 moduleInformation.ControlType = deviceSpecification.ControlType;
-
             }
             catch (Exception e)
             {

@@ -48,7 +48,7 @@ namespace MRProg.Devices
 
         public ControlType ControlType
         {
-            get { return ControlType.MLKTYPE;}
+            get { return ControlType.DEVICETYPE;}
         }
     }
 }

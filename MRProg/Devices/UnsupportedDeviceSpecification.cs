@@ -7,7 +7,7 @@ using MRProg.UserControls;
 
 namespace MRProg.Devices
 {
-    class UnknownDeviceSpecification: IDeviceSpecification
+    class UnsupportedDeviceSpecification: IDeviceSpecification
     {
         public List<ModuleType> ModuleTypes
         {
@@ -22,7 +22,7 @@ namespace MRProg.Devices
 
         public string DeviceName
         {
-            get { return "Незвестное усройство"; }
+            get { return "Неподдерживаемое устройство"; }
         }
 
 
@@ -48,7 +48,7 @@ namespace MRProg.Devices
 
         public ControlType ControlType
         {
-            get { return ControlType.MRTYPE; }
+            get { return ControlType.DEVICETYPE; }
         }
     }
 }

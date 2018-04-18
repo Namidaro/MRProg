@@ -85,7 +85,7 @@
     <Compile Include="Devices\MR901DeviceSpecification.cs" />
     <Compile Include="Devices\MR902DeviceSpecification.cs" />
     <Compile Include="Devices\PT303DeviceSpecification.cs" />
-    <Compile Include="Devices\UnknownDeviceSpecification.cs" />
+    <Compile Include="Devices\UnsupportedDeviceSpecification.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -113,6 +113,12 @@
     <Compile Include="UserControls\ModuleControl.Designer.cs">
       <DependentUpon>ModuleControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\DeviceControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\DeviceControl.Designer.cs">
+      <DependentUpon>DeviceControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\MrModuleControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -138,6 +144,9 @@
     </Compile>
     <EmbeddedResource Include="UserControls\ModuleControl.resx">
       <DependentUpon>ModuleControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\DeviceControl.resx">
+      <DependentUpon>DeviceControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\MrModuleControl.resx">
       <DependentUpon>MrModuleControl.cs</DependentUpon>

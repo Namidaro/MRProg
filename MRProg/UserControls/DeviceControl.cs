@@ -17,7 +17,7 @@ using MRProg.Module;
 
 namespace MRProg.UserControls
 {
-    public partial class MrModuleControl : UserControl, IModuleControlInerface
+    public partial class DeviceControl : UserControl, IModuleControlInerface
     {
         #region Const
 
@@ -34,8 +34,8 @@ namespace MRProg.UserControls
         #endregion
 
         #region Private Fields
-        private string _moduleName;
-        private string _moduleVersion;
+        private string _deviceName;
+        private string _deviceVersion;
         private string _fuze;
         private string _filePath;
         private byte[] _data;
@@ -49,7 +49,7 @@ namespace MRProg.UserControls
         #endregion
 
         #region Properteis
-        public MrModuleControl()
+        public DeviceControl()
         {
             InitializeComponent();
             _progressBarReport = new Progress<LoadReport>(OnProgressBarChanged);
@@ -57,26 +57,26 @@ namespace MRProg.UserControls
         /// <summary>
         /// Название модуля
         /// </summary>
-        public string ModuleName
+        public string DeviceName
         {
-            get { return _moduleName; }
+            get { return _deviceName; }
             set
             {
-                _moduleName = value;
-                _moduleNameLable.Text = _moduleName;
+                _deviceName = value;
+                _deviceNameLable.Text = _deviceName;
             }
         }
         /// <summary>
         /// Версия модуля
         /// </summary>
-        public string ModuleVersion
+        public string DeviceVersion
         {
-            get { return _moduleVersion; }
+            get { return _deviceVersion; }
             set
             {
-                _moduleVersion = value;
-                _versionLabel.Text = _moduleVersion;
-                _moduleNameLable.Text = _moduleVersion;
+                _deviceVersion = value;
+                _versionLabel.Text = _deviceVersion;
+                _deviceNameLable.Text = _deviceVersion;
             }
         }
         /// <summary>
@@ -144,15 +144,15 @@ namespace MRProg.UserControls
                     this.Fuze = _moduleInformation.Fuze;
                     if (_moduleInformation.State == ModuleStates.LOADER)
                     {
-                        this.ModuleVersion = _moduleInformation.LoaderVersion.ToString("F1");
+                        this.DeviceVersion = _moduleInformation.LoaderVersion.ToString("F1");
                     }
                     else
                     {
-                        this.ModuleVersion = _moduleInformation.ModuleVersion.ToString("F1");
+                        this.DeviceVersion = _moduleInformation.ModuleVersion.ToString("F1");
 
                     }
-                    this.ModuleName = ModuleManager.ModuleTypeFriendlyName(_moduleInformation.ModuleType);
-
+                    //this.DeviceName = ModuleManager.ModuleTypeFriendlyName(_moduleInformation.ModuleType);
+                    this.DeviceName = "Неподдерживаемое устройство";
                 }
 
             }
@@ -169,11 +169,20 @@ namespace MRProg.UserControls
         /// <summary>
         /// Фильтр файла прошивки
         /// </summary>
+        //public string FileFilter
+        //{
+        //    get
+        //    {
+        //        return String.Format(@"Файл прошивки (*.bin)|*{0}* M* R* *.*.bin", new string(this.Information.ModuleTypeString.Take(this.Information.ModuleTypeString.Length - 1).ToArray()));
+        //        //  return String.Format("Файл прошивки (*.bin)|*{0} {1} {2}*.bin", this.ModuleTypeString, this.Modification,this.Revision);
+        //    }
+        //}
+        //TODO: change filter
         public string FileFilter
         {
             get
             {
-                return String.Format(@"Файл прошивки (*.bin)|*{0}* M* R* *.*.bin", new string(this.Information.ModuleTypeString.Take(this.Information.ModuleTypeString.Length - 1).ToArray()));
+                return String.Format(@"Файл прошивки (*.bin)| *.*.bin");
                 //  return String.Format("Файл прошивки (*.bin)|*{0} {1} {2}*.bin", this.ModuleTypeString, this.Modification,this.Revision);
             }
         }
@@ -183,7 +192,10 @@ namespace MRProg.UserControls
         /// </summary>
         public string FileRegexString
         {
-            get { return String.Format(@"[\w\S\s]* {0} {1} {2} [\w\S\s]*\.bin", this.Information.ModuleTypeString, this.Information.Modification, this.Information.Revision); }
+            get
+            {
+                return String.Format(@"[\w\S\s]* {0} {1} {2} [\w\S\s]*\.bin", this.Information.ModuleTypeString, this.Information.Modification, this.Information.Revision);
+            }
         }
         /// <summary>
         /// Прошивка виде слов
@@ -199,13 +211,13 @@ namespace MRProg.UserControls
             set
             {
                 _type = value;
-                ModuleName = ModuleManager.ModuleTypeFriendlyName(value);
+                DeviceName = ModuleManager.ModuleTypeFriendlyName(value);
             }
         }
 
 
         #endregion
-        private bool VerefyFile()
+        private bool VerifyFile()
         {
             return !((this._data.Length != 0) & ((this.Data.Length % this.Information.FlashSize) == 0));
         }
@@ -273,7 +285,7 @@ namespace MRProg.UserControls
         {
             _data = File.ReadAllBytes(this._filePath);
 
-            if (this.VerefyFile())
+            if (this.VerifyFile())
             {
                 this.FileState = ModuleFileStates.CHOICEANOTHERFILE;
                 Logger.Add(string.Format("Для модуля {0} выбран неккоректный файл прошивки", this.Information.ModulePosition));
@@ -464,37 +476,37 @@ namespace MRProg.UserControls
                         _toBootloaderButton.Enabled = false;
                         break;
                     }
-                case ModuleStates.ANOUTHERPOSITION:
-                    {
-                        this.Enabled = true;
-                        if (Path.GetFileName(this._filePath) != null)
-                        {
-                            _chooseFile.BackColor = SystemColors.Control;
-                            this._workProgramCheckFile.Text = Path.GetFileName(this._filePath);
-                            _workProgramCheckFile.Checked = false;
-                            _workProgramCheckFile.Enabled = true;
-                        }
-                        else
-                        {
-                            _chooseFile.BackColor = SystemColors.Control;
-                            this._workProgramCheckFile.Checked = false;
-                            this._workProgramCheckFile.Enabled = false;
-                            this._workProgramCheckFile.Text = string.Empty;
-                        }
-                        this.groupBox1.BackColor = Color.Orange;
-                        this.groupBox2.BackColor = Color.Orange;
-                        this.groupBox3.BackColor = Color.Orange;
-                        this.BackColor = Color.Orange;
-                        this._chooseFile.Text = "Выбрать файл";
-                        this._workProgramCheckFile.Checked = false;
-                        this._workProgramCheckFile.Text = string.Empty;
-                        this._progressBar.Value = 0;
-                        _progressBar.BackColor = SystemColors.Control;
-                        this._fuzeLable.Text = string.Empty;
-                        this._versionLabel.Text = String.Empty;
-                        _toBootloaderButton.Enabled = false;
-                        break;
-                    }
+                //case ModuleStates.ANOUTHERPOSITION:
+                //    {
+                //        this.Enabled = true;
+                //        if (Path.GetFileName(this._filePath) != null)
+                //        {
+                //            _chooseFile.BackColor = SystemColors.Control;
+                //            this._workProgramCheckFile.Text = Path.GetFileName(this._filePath);
+                //            _workProgramCheckFile.Checked = false;
+                //            _workProgramCheckFile.Enabled = true;
+                //        }
+                //        else
+                //        {
+                //            _chooseFile.BackColor = SystemColors.Control;
+                //            this._workProgramCheckFile.Checked = false;
+                //            this._workProgramCheckFile.Enabled = false;
+                //            this._workProgramCheckFile.Text = string.Empty;
+                //        }
+                //        this.groupBox1.BackColor = Color.Orange;
+                //        this.groupBox2.BackColor = Color.Orange;
+                //        this.groupBox3.BackColor = Color.Orange;
+                //        this.BackColor = Color.Orange;
+                //        this._chooseFile.Text = "Выбрать файл";
+                //        this._workProgramCheckFile.Checked = false;
+                //        this._workProgramCheckFile.Text = string.Empty;
+                //        this._progressBar.Value = 0;
+                //        _progressBar.BackColor = SystemColors.Control;
+                //        this._fuzeLable.Text = string.Empty;
+                //        this._versionLabel.Text = String.Empty;
+                //        _toBootloaderButton.Enabled = false;
+                //        break;
+                //    }
                 case ModuleStates.ERROR_READ_MODULE:
                     {
                         this.groupBox1.BackColor = Color.Red;
@@ -667,17 +679,21 @@ namespace MRProg.UserControls
 
         private void OnProgressBarChanged(LoadReport loadReport)
         {
-
             if (_progressBar.Maximum != loadReport.TotalProgressCount)
             {
                 this._progressBar.Maximum = loadReport.TotalProgressCount;
             }
             this._progressBar.Value = loadReport.CurrentProgressCount;
-
         }
 
-        private async void _toBootloaderButton_Click(object sender, EventArgs e)
+        private void _toBootloaderButton_Click(object sender, EventArgs e)
         {
+            TryDeviceToLoader();
+        }
+
+        private async void TryDeviceToLoader()
+        {
+
             DialogResult dr = MessageBox.Show("Перевести в режим загрузчика?", "Внимание", MessageBoxButtons.YesNo);
             if (dr == DialogResult.No)
             {
@@ -687,7 +703,7 @@ namespace MRProg.UserControls
             {
                 try
                 {
-                    await ModuleWritterController.ModuleToloader(_moduleInformation);
+                    await ModuleWritterController.DeviceToloader(_moduleInformation);
                 }
                 catch (Exception exception)
                 {
@@ -702,6 +718,11 @@ namespace MRProg.UserControls
 
         private async void _toWorkStateButton_Click(object sender, EventArgs e)
         {
+            await TryDeviceToWork();
+        }
+
+        private async Task TryDeviceToWork()//lul
+        {
             try
             {
                 await ModuleWritterController.ModuleToWork(_moduleInformation);
@@ -714,7 +735,6 @@ namespace MRProg.UserControls
                 NeedRefreshAction?.Invoke(_moduleInformation.ModulePosition);
             }
         }
-
         private async void _clearModuleButton_Click(object sender, EventArgs e)
         {
             try

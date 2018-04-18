@@ -21,50 +21,62 @@ namespace MRProg
 {
     public partial class MainForm : MetroForm
     {
+        #region [Private Fields]
         private const string GOOD_REQUESTS_PATTERN = "Успешных запросов - {0}";
         private const string BAD_REQUESTS_PATTERN = "Неудачных запросов - {0}";
         private const string ALL_REQUESTS_PATTERN = "Всех запросов - {0}";
         private const string CONFIG_FILE_NAME = "BootConfig.ini";
 
-
-
         private IProgress<QueryReport> _queryProgress;
-        private DevicesManager _deiceManager;
+        private DevicesManager _deviceManager;
         private ModuleManager _moduleManager;
         private IDeviceSpecification _deviceSpecification;
         private CancellationTokenSource _cancellationTokenSource;
         private WriteButtonState _writeButtonState;
+        #endregion
 
+        #region [Ctor]
         public MainForm()
         {
-
             InitializeComponent();
             SetVersionInformation();
             _writeButtonState = WriteButtonState.WRITE;
-            _deiceManager = new DevicesManager();
+            _deviceManager = new DevicesManager();
             DevicesManager.DeviceNumber = Convert.ToByte(_deviceNumberTextBox.Text);
             _moduleManager = new ModuleManager();
             _queryProgress = new Progress<QueryReport>(OnQueryProgressChanged);
             ConnectionManager.SelectedPort = Settings.Default.Port.ToString();
+            ConnectionManager.BaudRate = Convert.ToInt32(comPortConfiguration.AllBaudRates.ElementAt(Settings.Default.BaundRates).Value);
             ConnectionManager.Progress = _queryProgress;
             _comportLable.Text = "COM" + ConnectionManager.SelectedPort;
         }
+        #endregion
 
         private void _configurationButton_Click(object sender, EventArgs e)
         {
-            comPortConfiguration.ShowConfiguration();
-            _comportLable.Text = "COM" + ConnectionManager.SelectedPort;
+            SetConfiguration();
         }
 
+        private void SetConfiguration()
+        {
+            comPortConfiguration.ShowConfiguration();
+            _comportLable.Text = "COM" + ConnectionManager.SelectedPort;
+
+        }
         private async void _connectButton_Click(object sender, EventArgs e)
         {
+            await TryConnectToDevice();
+        }
+
+        private async Task TryConnectToDevice()
+        {
             _panelControl.Controls.Clear();
-            ConnectionManager.Connection = new ComConnection(Convert.ToByte(ConnectionManager.SelectedPort));
+            ConnectionManager.Connection = new ComConnection(Convert.ToByte(ConnectionManager.SelectedPort),Convert.ToInt32(ConnectionManager.BaudRate));
             if (ConnectionManager.Connection.TryOpenConnection())
             {
                 try
                 {
-                    _deviceSpecification = await _deiceManager.IdentifyDevice(Convert.ToByte(_deviceNumberTextBox.Text));
+                    _deviceSpecification = await _deviceManager.IdentifyDevice(Convert.ToByte(_deviceNumberTextBox.Text));
                 }
                 catch (Exception exception)
                 {
@@ -72,41 +84,67 @@ namespace MRProg
                     message.ShowErrorMessageForm();
                     return;
                 }
-                if (_deviceSpecification is UnknownDeviceSpecification)
+                if (_deviceSpecification is UnsupportedDeviceSpecification)
                 {
-                    if (_deiceManager.GetdeviceName != String.Empty)
+                    if (_deviceManager.GetDeviceName != String.Empty)
                     {
-                        MessageBox.Show(String.Format("Работа с {0} невозможна", _deiceManager.GetdeviceName));
+                        DialogResult dialogResult = MessageBox.Show(String.Format("Устройства {0} неизвестно. Обнулить привязку?", _deviceManager.GetDeviceName), string.Format("Неизвестное устройство"), MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            await CheckAndSetUnknownControlToLoader();
+                        }
+                        else
+                        {
+                            MessageBox.Show(String.Format("Работа с {0} невозможна", _deviceManager.GetDeviceName));
+                        }
                     }
                     else
                     {
                         MessageBox.Show("Работа с подключенным устройством невозможна");
                     }
-
                 }
-
                 else
                 {
                     await SetControl();
                 }
-
             }
             _readInformationButton.Enabled = true;
+
         }
 
         private async Task SetControl()
         {
             if (_deviceSpecification.ControlType == ControlType.MLKTYPE)
             {
-                SetModuleControl();
+                await SetModuleControl();
             }
-            else
+            else if (_deviceSpecification.ControlType == ControlType.MRTYPE)
             {
                 await SetMrModuleControl();
             }
+            else
+            {
+                await SetDeviceContol();
+            }
+        }
+        private async Task CheckAndSetUnknownControlToLoader()
+        {
+            ModuleInformation _moduleInfo = await _moduleManager.ReadModuleInformation(_deviceSpecification, 1, 0);
+            TryClearModuleBinding(_moduleInfo);
+        }
+        private async void TryClearModuleBinding(ModuleInformation _moduleInfo)
+        {
+            try
+            {
+                await ModuleWritterController.ClearModule(_moduleInfo);
+            }
+            catch (Exception e)
+            {
+
+            }
         }
 
-        private async void SetModuleControl()
+        private async Task SetModuleControl()
         {
             _panelControl.Controls.Clear();
             ModuleControl control = new ModuleControl();
@@ -152,6 +190,22 @@ namespace MRProg
             }
         }
 
+        private async Task SetDeviceContol()
+        {
+            _panelControl.Controls.Clear();
+            DeviceControl control = new DeviceControl();
+            ModuleInformation moduleInformation = await _moduleManager.ReadModuleInformation(_deviceSpecification, Convert.ToByte(_deviceNumberTextBox.Text), 0);
+            control.Information = moduleInformation;
+            control.Anchor = (AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top);
+            control.Dock = DockStyle.Top;
+            control.TypeModule = _deviceSpecification.ModuleTypes[0];
+            (control as IModuleControlInerface).NeedRefreshAction += (i) =>
+            {
+                RefreshModule(i);
+            };
+            _panelControl.Controls.Add(control);
+        }
+
         private async Task RefreshModule(int modulenumber)
         {
             try
@@ -163,9 +217,14 @@ namespace MRProg
                     MrModuleControl control = _panelControl.Controls[modulenumber] as MrModuleControl;
                     control.Information = moduleInformation;
                 }
-                else
+                else if (_deviceSpecification.ControlType == ControlType.MLKTYPE)
                 {
                     ModuleControl control = _panelControl.Controls[modulenumber] as ModuleControl;
+                    control.Information = moduleInformation;
+                }
+                else
+                {
+                    DeviceControl control = _panelControl.Controls[modulenumber] as DeviceControl;
                     control.Information = moduleInformation;
                 }
             }
@@ -195,20 +254,30 @@ namespace MRProg
             _statisticBox.Text = "MRProg от " + f.LastWriteTime.ToString().Split(' ')[0];
         }
 
-        private async void _writeToDeviceButton_Click(object sender, EventArgs e)
+        private void _writeToDeviceButton_Click(object sender, EventArgs e)
         {
-            if (_writeButtonState == WriteButtonState.WRITE)
-            {
-                _writeToDeviceButton.Text = "Остановить запись";
-                await WriteToDevice();
-            }
-            if (_writeButtonState == WriteButtonState.STOP)
-            {
-                _cancellationTokenSource.Cancel();
-                _writeToDeviceButton.Text = "Записать в устройство";
-                _writeToDeviceButton.Enabled = false;
-            }
+            TryWriteToDevice();
+        }
 
+        private async void TryWriteToDevice()
+        {
+            try
+            {
+                if (_writeButtonState == WriteButtonState.WRITE)
+                {
+                    _writeToDeviceButton.Text = "Остановить запись";
+                    await WriteToDevice();
+                }
+                if (_writeButtonState == WriteButtonState.STOP)
+                {
+                    _cancellationTokenSource.Cancel();
+                    _writeToDeviceButton.Text = "Записать в устройство";
+                    _writeToDeviceButton.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         private async Task WriteToDevice()
@@ -251,13 +320,13 @@ namespace MRProg
                             else
                             {
                                 MessageErrorBox messageErrorBox =
-                                    new MessageErrorBox(e.Message,"Неудалось записать файл прошивки");
+                                    new MessageErrorBox(e.Message, "Неудалось записать файл прошивки");
                                 messageErrorBox.ShowErrorMessageForm();
                                 _writeButtonState = WriteButtonState.WRITE;
                                 _writeToDeviceButton.Text = "Записать в устройство";
                                 _writeToDeviceButton.Enabled = true;
                             }
-                            
+
                         }
                         finally
                         {
@@ -279,15 +348,6 @@ namespace MRProg
         private void _deviceNumberTextBox_TextChanged(object sender, EventArgs e)
         {
             DevicesManager.DeviceNumber = Convert.ToByte(_deviceNumberTextBox.Text);
-        }
-
-        private void metroButton2_Click(object sender, EventArgs e)
-        {
-            var path = LoadFolder();
-            if (!string.IsNullOrEmpty(path))
-            {
-                this._openFolderButton.Text = path;
-            }
         }
 
         public string LoadFolder()
@@ -318,6 +378,20 @@ namespace MRProg
         private async void _readInformationButton_Click(object sender, EventArgs e)
         {
             await SetControl();
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.Dispose();
+        }
+
+        private void _openFolderButton_Click(object sender, EventArgs e)
+        {
+            var path = LoadFolder();
+            if (!string.IsNullOrEmpty(path))
+            {
+                this._openFolderButton.Text = path;
+            }
         }
     }
 }

@@ -77,7 +77,8 @@ namespace MRProg.UserControls
     public enum ControlType
     {
         MLKTYPE=0,
-        MRTYPE
+        MRTYPE,
+        DEVICETYPE
     }
     [Flags]
     public enum TypeOfMemory

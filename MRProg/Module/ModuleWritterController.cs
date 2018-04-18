@@ -94,9 +94,18 @@ namespace MRProg.Module
                     }
                 case TypeOfMemory.RALAY_DISCRET:
                     {
-                        this._pageCount = 1;
-                        this._startPage = 1020;
-                        break;
+                        if ((_moduleInformation.Processor == ProcessorType.AT_MEGA_128))
+                        {
+                            this._pageCount = 1;
+                            this._startPage = 508;
+                            break;
+                        }
+                        else
+                        {
+                            this._pageCount = 1;
+                            this._startPage = 1020;
+                            break;
+                        }
                     }
                 case TypeOfMemory.WORK:
                     {
@@ -157,16 +166,24 @@ namespace MRProg.Module
                     }
                 case TypeOfMemory.BOOT_FLASH:
                     {
-
                         this._pageCount = count;
                         _startPage = startpage;
                         break;
                     }
                 case TypeOfMemory.RALAY_DISCRET:
                     {
-                        this._pageCount = 1;
-                        this._startPage = 1020;
-                        break;
+                        if ((_moduleInformation.Processor == ProcessorType.AT_MEGA_128))
+                        {
+                            this._pageCount = 1;
+                            this._startPage = 508;
+                            break;
+                        }
+                        else
+                        {
+                            this._pageCount = 1;
+                            this._startPage = 1020;
+                            break;
+                        }
                     }
                 case TypeOfMemory.WORK:
                     {
@@ -183,26 +200,26 @@ namespace MRProg.Module
                     }
             }
         }
-        public async Task ModuleToloader()
-        {
-            if (_moduleInformation.State == ModuleStates.LOADER)
-            {
-                return;
-            }
-            string name = "Перевод модуля в режим загрузчика";
-            var res = Common.TOWORD(0, (byte)((Convert.ToByte(_moduleInformation.ModuleType) << 4) | _moduleInformation.ModulePosition));
-            var writePageArray = new ushort[] { res, };
+        //public async Task ModuleToloader()
+        //{
+        //    if (_moduleInformation.State == ModuleStates.LOADER)
+        //    {
+        //        return;
+        //    }
+        //    string name = "Перевод модуля в режим загрузчика";
+        //    var res = Common.TOWORD(0, (byte)((Convert.ToByte(_moduleInformation.ModuleType) << 4) | _moduleInformation.ModulePosition));
+        //    var writePageArray = new ushort[] { res, };
 
-            try
-            {
-                await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(_deviceNumber, 0x3A0,
-                               writePageArray, name);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Ошибка при переводе в режим загрузчика");
-            }
-        }
+        //    try
+        //    {
+        //        await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(_deviceNumber, 0x3A0,
+        //                       writePageArray, name);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new Exception("Ошибка при переводе в режим загрузчика");
+        //    }
+        //}
 
         public static async Task ModuleToloader(ModuleInformation information)
         {
@@ -232,33 +249,33 @@ namespace MRProg.Module
             controlWord = Common.SetBits(controlWord, information.ModulePosition, 0, 1, 2, 3);
             try
             {
-
-
                 if (information.ControlType == ControlType.MRTYPE)
                 {
-                    await ModuleToloader(information);
-
+                    if (information.State != ModuleStates.LOADER)
+                    {
+                        await ModuleToloader(information);
+                    }
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsyncFunction12(DevicesManager.DeviceNumber, 0, information.ModulePosition,
-                        new ushort[8] { 0, 0, 0, 0, 0, 0, 0, 0 }, "Очитска модуля 2-ый этап");
+                        new ushort[8] { 0, 0, 0, 0, 0, 0, 0, 0 }, "Очитска модуля 1-ый этап");
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsyncFunction12(DevicesManager.DeviceNumber, (ushort)(information.FlashSize + 1), information.ModulePosition,
-                        new ushort[1] { 0x8001 }, "Очитска модуля 2-ый этап");
-
+                        new ushort[1] { 0x8001 }, "Очитска модуля 2-й этап");
                 }
                 else
                 {
-                    ModuleMLKToloader(information);
+                    if (information.State != ModuleStates.LOADER)
+                    {
+                        DeviceToloader(information);
+                    }
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(DevicesManager.DeviceNumber, 0,
-                        new ushort[8] { 0, 0, 0, 0, 0, 0, 0, 0 }, "Очитска модуля 2-ый этап");
+                        new ushort[8] { 0, 0, 0, 0, 0, 0, 0, 0 }, "Очитска модуля 1-ый этап");
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(DevicesManager.DeviceNumber, (ushort)(information.FlashSize + 1),
-                        new ushort[1] { 0x8001 }, "Очитска модуля 2-ый этап");
+                        new ushort[1] { 0x8001 }, "Очитска модуля 2-й этап");
                 }
-
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-
         }
 
 
@@ -270,35 +287,29 @@ namespace MRProg.Module
             var inBytes = Common.TOWORDS(devinfo.Select(o => (byte)o).ToArray(), false);
             try
             {
-
-
                 if (information.ControlType == ControlType.MRTYPE)
                 {
 
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsyncFunction12(DevicesManager.DeviceNumber, 0, information.ModulePosition,
-                        inBytes, "Очитска модуля 2-ый этап");
-                    await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsyncFunction12(DevicesManager.DeviceNumber, (ushort)(information.FlashSize+1), information.ModulePosition,
-                        new ushort[1] { 0x8001 }, "Очитска модуля 2-ый этап");
-
+                        inBytes, "Очитска модуля 1-ый этап");
+                    await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsyncFunction12(DevicesManager.DeviceNumber, (ushort)(information.FlashSize + 1), information.ModulePosition,
+                        new ushort[1] { 0x8001 }, "Очитска модуля 2-й этап");
                 }
                 else
                 {
-
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(DevicesManager.DeviceNumber, 0,
-                        inBytes, "Очитска модуля 2-ый этап");
+                        inBytes, "Очитска модуля 1-ый этап");
                     await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(DevicesManager.DeviceNumber, (ushort)(information.FlashSize + 1),
-                        new ushort[1] { 0x8001 }, "Очитска модуля 2-ый этап");
+                        new ushort[1] { 0x8001 }, "Очитска модуля 2-й этап");
                 }
-
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-
         }
 
-        public static void ModuleMLKToloader(ModuleInformation information)
+        public static async Task DeviceToloader(ModuleInformation information)
         {
 
             if (information.State == ModuleStates.LOADER)
@@ -320,7 +331,7 @@ namespace MRProg.Module
             }
         }
 
-        public static async Task ModuleMLKToWork(ModuleInformation information)
+        public static async Task DeviceToWork(ModuleInformation information)
         {
             if (information.State == ModuleStates.WORK)
             {
@@ -462,8 +473,6 @@ namespace MRProg.Module
 
         public async Task<ushort[]> LoadPageAsync(ushort[] writePageArray)
         {
-
-
             string name = string.Empty;
             switch (this._typeOfMemory)
             {
@@ -553,7 +562,7 @@ namespace MRProg.Module
             try
             {
 
-                await ModuleToloader();
+                await ModuleToloader(_moduleInformation);
                 await Task.Delay(2000);
                 await this.FillPage(progress);
                 await WriteCRC();
@@ -588,7 +597,7 @@ namespace MRProg.Module
             _currentPage = 0;
             try
             {
-                ModuleMLKToloader(_moduleInformation);
+                DeviceToloader(_moduleInformation);
                 await Task.Delay(2000);
                 await this.FillPage(progress, true);
                 await CheckResultWrite(progress);
@@ -764,8 +773,8 @@ namespace MRProg.Module
                 }
                 else
                 {
-                    await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(_deviceNumber,
-                        (ushort)this._moduleInformation.FlashSize, new ushort[1], "чтение CRC");
+                    ushorts.AddRange(await ConnectionManager.Connection.ModbusMasterController?.ReadHoldingRegistersAsync(_deviceNumber,
+                        (ushort)this._moduleInformation.FlashSize, 1, "чтение CRC"));
                 }
             }
             catch (Exception e)

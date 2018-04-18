@@ -111,6 +111,7 @@ namespace MRProg.UserControls
                 {
                     throw new ArgumentException();
                 }
+                Common.SwapArrayItems(ref array);
                 var crc = Crc16.CalcCrcFast(array, 256 - 2);
                 if (Common.TOWORD(array[254], array[255]) != crc)
                 {
@@ -333,6 +334,7 @@ namespace MRProg.UserControls
             {
                 _moduleWritterController = moduleWritterController;
                 byte[] result = await _moduleWritterController.ReadPage(_progress);
+                
                 _config = new AllConfig(result);
             }
             catch (Exception e)
@@ -538,7 +540,7 @@ namespace MRProg.UserControls
             //_moduleWritterController.Fail += HandlerHelper.CreateActionHandler(Program.MainFormReferense, () => MessageBox.Show("Ошибка. Конфигурация не записана в устройство"));
 
             var aer = _config.ToBytes(); //File.ReadAllBytes(fileName);
-            Common.SwapArrayItems(ref aer);
+            //Common.SwapArrayItems(ref aer);
             _moduleWritterController.Data = aer;
             try
             {
