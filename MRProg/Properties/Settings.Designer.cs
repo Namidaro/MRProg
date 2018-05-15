@@ -37,7 +37,7 @@ namespace MRProg.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int BaundRates {
             get {
                 return ((int)(this["BaundRates"]));
@@ -49,7 +49,7 @@ namespace MRProg.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int DataBitsProperty {
             get {
                 return ((int)(this["DataBitsProperty"]));
@@ -61,7 +61,7 @@ namespace MRProg.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int StopBitsProperty {
             get {
                 return ((int)(this["StopBitsProperty"]));
@@ -73,7 +73,7 @@ namespace MRProg.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int ParityProperty {
             get {
                 return ((int)(this["ParityProperty"]));
