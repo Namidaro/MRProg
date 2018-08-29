@@ -127,7 +127,6 @@ namespace MRProg.UserControls
                 this._state = value;
                 try
                 {
-
                     SetState();
                     //if (this.IsHandleCreated)
                     //{
@@ -136,7 +135,6 @@ namespace MRProg.UserControls
                 }
                 catch (Exception e)
                 {
-
                     //Logger.Add("Ошибка переключения состояния");
                     //Logger.Add(e.Message);
                 }
@@ -260,10 +258,6 @@ namespace MRProg.UserControls
                 ModuleName = ModuleManager.ModuleTypeFriendlyName(value);
             }
         }
-
-
-
-
         #endregion
 
         private void OnProgressChangedWork(LoadReport loadReport)

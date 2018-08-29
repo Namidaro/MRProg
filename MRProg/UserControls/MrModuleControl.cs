@@ -272,7 +272,6 @@ namespace MRProg.UserControls
         private void SetFilePath()
         {
             _data = File.ReadAllBytes(this._filePath);
-
             if (this.VerefyFile())
             {
                 this.FileState = ModuleFileStates.CHOICEANOTHERFILE;

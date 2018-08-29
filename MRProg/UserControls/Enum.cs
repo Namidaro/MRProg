@@ -62,6 +62,7 @@ namespace MRProg.UserControls
         ANALOG_4_I_5_U = 8,     //МСА 771 4Т5Н
         DISCRET_32 = 9,         //МСД 761 УБР
         DISCRET_24_RELAY_8 = 11,//МСДР 901
+        ANALOG_5_I_4_U = 12,    //МСА 901 5Т4Н
         MKI = 14,               //МЦП 801
         MLK = 30,
         KL = 31,

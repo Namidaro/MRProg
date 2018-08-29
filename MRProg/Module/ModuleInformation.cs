@@ -203,6 +203,16 @@ namespace MRProg.Module
                             moduleTypeString = "ANALOG SE";
                             break;
                         }
+                    case ModuleType.ANALOG_5_I_4_U:
+                        {
+                            moduleTypeString = "ANALOG SF";
+                            break;
+                        }
+                    case ModuleType.DISCRET_24_RELAY_8:
+                        {
+                            moduleTypeString = "SDR SC";
+                            break;
+                        }
                     case ModuleType.MKI:
                         {
                             moduleTypeString = "BOARD SB";
@@ -225,7 +235,7 @@ namespace MRProg.Module
                         }
                     case ModuleType.PT303:
                         {
-                            moduleTypeString ="PT303 ";
+                            moduleTypeString = "PT303 ";
                             break;
                         }
                     case ModuleType.CLEAR:
@@ -299,6 +309,9 @@ namespace MRProg.Module
                         case "SE":
                             this.ModuleType = ModuleType.ANALOG_4_I_5_U;
                             break;
+                        case "SF":
+                            this.ModuleType = ModuleType.ANALOG_5_I_4_U;
+                            break;
                     }
                 }
 
@@ -346,7 +359,7 @@ namespace MRProg.Module
 
             try
             {
-                if ((String.IsNullOrEmpty(str1) & str2.All(o => o == 0) & String.IsNullOrEmpty(str3))) //000
+                if (((str1.Equals(new String(' ', 16))) & str2.All(o => o == 0) & (str3.Equals(new String(' ',16))))) //000
 
                 {
                     this.State = ModuleStates.NO_MODULE;
@@ -398,7 +411,7 @@ namespace MRProg.Module
         /// <param name="str"></param>
         private void ParseWorkString(string str)
         {
-            if (String.IsNullOrEmpty(str) || str.All(s=> s==' '))
+            if (String.IsNullOrEmpty(str) || str.All(s => s == ' '))
             {
                 this.State = ModuleStates.LOADER;
                 return;

@@ -172,7 +172,9 @@ namespace MRProg
                     ModuleInformation moduleInformation = await _moduleManager.ReadModuleInformation(_deviceSpecification, Convert.ToByte(_deviceNumberTextBox.Text), i);
                     control.Information = moduleInformation;
                     control.Anchor = (AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top);
-                    control.TypeModule = _deviceSpecification.ModuleTypes[i];
+                    //control.TypeModule = _deviceSpecification.ModuleTypes[i];
+                    control.TypeModule = moduleInformation.ModuleType;
+
                     control.Location = new Point(0, y);
                     control.Width = _panelControl.Width;
                     _panelControl.Controls.Add(control);

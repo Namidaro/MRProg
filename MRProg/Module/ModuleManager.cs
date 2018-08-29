@@ -24,11 +24,13 @@ namespace MRProg.Module
                     byte[] answerBytes = Common.TOBYTES(answer, false);
                     char[] str = Common.GetChars(answerBytes).Select(o => o == '\0' ? ' ' : o).ToArray();
                     string str1 = new string(str, 0, 16);
-                    string str2 = new string(str, 16, 16);
+                    //string str2 = new string(str, 16, 16);
                     string str3 = new string(str, 32, 16);
                     var addingInfo = answerBytes.Skip(16).Select(o => (byte)o).Take(16).ToArray();
                      moduleInformation=new ModuleInformation(str1,addingInfo,str3,(byte)i);
-                    moduleInformation.ModulePositionOnSpecification = deviceSpecification.ModuleTypes[i];
+                    //moduleInformation.ModulePositionOnSpecification = deviceSpecification.ModuleTypes[i];
+                moduleInformation.ModulePositionOnSpecification = deviceSpecification.ModuleTypes[i];
+
                 moduleInformation.ControlType = deviceSpecification.ControlType;
             }
             catch (Exception e)
@@ -48,17 +50,17 @@ namespace MRProg.Module
             switch (moduleType)
             {
                 case ModuleType.DISCRET_RELAY_16:
-                    return "МСДР 761";
+                    return "МСДР 761 (16Р)";
                 case ModuleType.DISCRET_24_RELAY_8:
-                    return "МСДР 901";
+                    return "МСДР 901 (24Д 8Р)";
                 case ModuleType.DISCRET_16:
-                    return "МСД 801";
+                    return "МСД 801 (16Д)";
                 case ModuleType.DISCRET_32:
-                    return "МСД 761 ОБР";
+                    return "МСД 761 ОБР (32Д)";
                 case ModuleType.DISCRET_RELAY_8:
-                    return "МСДР 801";
+                    return "МСДР 801 (8Р)";
                 case ModuleType.POWER:
-                    return "МПР 801";
+                    return "МПР 801 (10Р)";
                 case ModuleType.ANALOG_8_I:
                     return "МСА 801 ТТ (8Т)";
                 case ModuleType.ANALOG_4_I_4_U:
@@ -69,6 +71,8 @@ namespace MRProg.Module
                     return "МСА 763 (3Т 5Н)";
                 case ModuleType.ANALOG_4_I_5_U:
                     return "МСА 771 (4Т 5Н)";
+                case ModuleType.ANALOG_5_I_4_U:
+                    return "МСА XXX (5Т 4Н)";
                 case ModuleType.MKI:
                     return "МКИ";
                 case ModuleType.MLK:
