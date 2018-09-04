@@ -561,10 +561,10 @@ namespace MRProg.Module
             _currentPage = 0;
             try
             {
-
                 await ModuleToloader(_moduleInformation);
                 await Task.Delay(2000);
                 await this.FillPage(progress);
+                await Task.Delay(2500);
                 await WriteCRC();
                 await Task.Delay(2500);
                 await VerifyCRC();
