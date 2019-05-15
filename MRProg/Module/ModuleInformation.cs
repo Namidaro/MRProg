@@ -13,6 +13,8 @@ namespace MRProg.Module
 
         private ModuleType _modulepositionOnSpecification;
 
+        public ushort BaseModuleAddress { get; set; }
+
         /// <summary>
         /// Состояние модуля 
         /// </summary>

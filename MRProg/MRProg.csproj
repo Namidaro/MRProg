@@ -81,6 +81,7 @@
     <Compile Include="Devices\MR763DeviceSpecification.cs" />
     <Compile Include="Devices\MR764DeviceSpecification.cs" />
     <Compile Include="Devices\MR771DeviceSpecification.cs" />
+    <Compile Include="Devices\MR801NDeviceSpecification.cs" />
     <Compile Include="Devices\MR801DeviceSpecification.cs" />
     <Compile Include="Devices\MR901DeviceSpecification.cs" />
     <Compile Include="Devices\MR902DeviceSpecification.cs" />

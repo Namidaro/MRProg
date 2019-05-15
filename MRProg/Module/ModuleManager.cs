@@ -30,6 +30,10 @@ namespace MRProg.Module
                      moduleInformation=new ModuleInformation(str1,addingInfo,str3,(byte)i);
                     //moduleInformation.ModulePositionOnSpecification = deviceSpecification.ModuleTypes[i];
                 moduleInformation.ModulePositionOnSpecification = deviceSpecification.ModuleTypes[i];
+                if (deviceSpecification.DeviceName.Equals("MR801N"))
+                    moduleInformation.BaseModuleAddress = 0x3A8;
+                else
+                    moduleInformation.BaseModuleAddress = 0x3A0;
 
                 moduleInformation.ControlType = deviceSpecification.ControlType;
             }

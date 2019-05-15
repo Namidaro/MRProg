@@ -32,6 +32,7 @@ namespace MRProg.Devices
                 new MR764DeviceSpecification(),
                 new MR771DeviceSpecification(),
                 new MR801DeviceSpecification(),
+                new MR801NDeviceSpecification(),
                 new MR901DeviceSpecification(),
                 new MR902DeviceSpecification(),
                 new PT303DeviceSpecification(),
@@ -51,7 +52,7 @@ namespace MRProg.Devices
             try
             {
                 answerforMr = await ConnectionManager.Connection.ModbusMasterController.ReadHoldingRegistersAsync(devicenumber, 0x500,
-                                    0x10, "Определение типа устройства");
+                                    0x20, "Определение типа устройства");
                 if (VersionForMR(answerforMr))
                 {
                     return _currentDeviceSpecification;
@@ -79,6 +80,7 @@ namespace MRProg.Devices
 
         private bool VersionForMR(ushort[] massUshorts)
         {
+
             byte[] answer = Common.TOBYTES(massUshorts, true);
 
             Common.SwapArrayItems(ref answer);
@@ -87,6 +89,12 @@ namespace MRProg.Devices
             var str1 = new string(str, 0, 16);
             var str2 = new string(str, 16, 16);
             _deviceName = str1.Split(' ')[0] + str1.Split(' ')[1];
+            if (_deviceName.Equals("MR801"))
+            {
+                var str3 = new string(str, 0, str.Length);
+                if (str3.Contains("T12N5D58R51"))
+                    _deviceName = "MR801N";
+            }
 
             if (string.IsNullOrEmpty(str2))
             {
@@ -109,6 +117,7 @@ namespace MRProg.Devices
             {
                 this._versionNumber = string.Empty;
             }
+
             return IsDeviceConteins(_deviceName);
             Logger.Add(string.Format("Подключенное устройство - {0}", _deviceName));
         }
