@@ -230,7 +230,7 @@ namespace MRProg.Module
             string name = "Перевод модуля в режим загрузчика";
             var res = Common.TOWORD(0, (byte)((Convert.ToByte(information.ModuleType) << 4) | information.ModulePosition));
             var writePageArray = new ushort[] { res, };
-            
+
             try
             {
                 //TODO: для устройств с 6+ модулей адрес должен быть 0x3A8, надо придумать, как красиво это сделать
@@ -239,7 +239,10 @@ namespace MRProg.Module
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                information.BaseModuleAddress = 0x03A8;
+                await ConnectionManager.Connection.ModbusMasterController?.WriteMultipleRegistersAsync(DevicesManager.DeviceNumber, information.BaseModuleAddress,
+                    writePageArray, name);
+
             }
         }
 
